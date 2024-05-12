@@ -10,6 +10,18 @@ const PostContainer = styled.div(() => ({
   overflow: 'hidden',
 }));
 
+const NameInitial = styled.div(() => ({
+  width: '50px',
+  height: '50px',
+  borderRadius: '50%',
+  backgroundColor: 'gray',
+  color: 'white',
+  fontWeight: 'bold',
+  display: 'flex',
+  justifyContent: 'center',
+  alignItems: 'center',
+}));
+
 const CarouselContainer = styled.div(() => ({
   position: 'relative',
 }));
@@ -69,7 +81,7 @@ const Post = ({ post }) => {
   const handleNextClick = () => {
     if (carouselRef.current) {
       carouselRef.current.scrollBy({
-        left: 50,
+        left: 300,
         behavior: 'smooth',
       });
     }
@@ -77,8 +89,9 @@ const Post = ({ post }) => {
 
   const handlePrevClick = () => {
     if (carouselRef.current) {
+      //fixed the carousel scroll
       carouselRef.current.scrollBy({
-        left: -70,
+        left: -300,
         behavior: 'smooth',
       });
     }
@@ -86,6 +99,20 @@ const Post = ({ post }) => {
 
   return (
     <PostContainer>
+      <div style={{ display: 'flex', gap: '10px', margin: '10px' }}>
+        {/* added the user avatar, name and email */}
+        <NameInitial>
+          {post.user.name
+            .split(' ')
+            .map(item => item[0])
+            .join('')}
+        </NameInitial>
+        <div>
+          {post.user.name}
+          <br />
+          {post.user.email}
+        </div>
+      </div>
       <CarouselContainer>
         <Carousel ref={carouselRef}>
           {post.images.map((image, index) => (

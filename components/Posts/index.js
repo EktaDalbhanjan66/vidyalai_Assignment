@@ -4,6 +4,7 @@ import styled from '@emotion/styled';
 import Post from './Post';
 import Container from '../common/Container';
 import useWindowWidth from '../hooks/useWindowWidth';
+import { useWindowWidthContext } from '../../pages/WindowWidthContext';
 
 const PostListContainer = styled.div(() => ({
   display: 'flex',
@@ -35,23 +36,35 @@ const LoadMoreButton = styled.button(() => ({
 export default function Posts() {
   const [posts, setPosts] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [start, setStart] = useState(0);
+  const [display, setDisplay] = useState('flex');
+  // const { isSmallerDevice } = useWindowWidth();
 
-  const { isSmallerDevice } = useWindowWidth();
+  //geting isSmallerDevice value using context
+  const isSmallerDevice = useWindowWidthContext();
 
   useEffect(() => {
     const fetchPost = async () => {
       const { data: posts } = await axios.get('/api/v1/posts', {
-        params: { start: 0, limit: isSmallerDevice ? 5 : 10 },
+        params: { start, limit: isSmallerDevice ? 5 : 10 },
       });
-      setPosts(posts);
+
+      //if the post array is empty setting the load more button to hidden
+      if (posts.length === 0) {
+        setDisplay('none');
+      }
+
+      setPosts(prevPosts => [...prevPosts, ...posts]);
     };
 
     fetchPost();
-  }, [isSmallerDevice]);
+  }, [isSmallerDevice, start]);
 
   const handleClick = () => {
     setIsLoading(true);
 
+    //moving start to plus 10 to fetch the next 10 posts
+    setStart(start + 10);
     setTimeout(() => {
       setIsLoading(false);
     }, 3000);
@@ -65,7 +78,7 @@ export default function Posts() {
         ))}
       </PostListContainer>
 
-      <div style={{ display: 'flex', justifyContent: 'center' }}>
+      <div style={{ display: `${display}`, justifyContent: 'center' }}>
         <LoadMoreButton onClick={handleClick} disabled={isLoading}>
           {!isLoading ? 'Load More' : 'Loading...'}
         </LoadMoreButton>
